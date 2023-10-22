@@ -1,6 +1,5 @@
 import "~/styles/globals.css";
-import { headers } from "next/headers";
-import { TRPCReactProvider } from "~/trpc/react";
+import Providers from "~/components/providers/Providers";
 
 export const metadata = {
   title: "fiornote",
@@ -18,7 +17,7 @@ export default function RootLayout({
       <body
         className={`flex min-h-screen flex-col bg-slate-800 text-slate-200`}
       >
-        <TRPCReactProvider headers={headers()}>{children}</TRPCReactProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

@@ -23,7 +23,6 @@ export const mysqlTable = mysqlTableCreator((name) => `fiornote_${name}`);
 export const folders = mysqlTable(
   "folder",
   {
-    // id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
     id: varchar("id", { length: 255 })
       .notNull()
       .primaryKey()
@@ -35,8 +34,7 @@ export const folders = mysqlTable(
     userId: varchar("userId", { length: 255 })
       .notNull()
       .references(() => users.id),
-    // parentFolderId: bigint("id", { mode: "number" }),
-    parentFolderId: varchar("id", { length: 255 }),
+    parentFolderId: varchar("parentFolderId", { length: 255 }),
     name: varchar("name", { length: 256 }).notNull(),
   },
   (folder) => ({
@@ -72,7 +70,9 @@ export const notes = mysqlTable(
     userId: varchar("userId", { length: 255 })
       .notNull()
       .references(() => users.id),
-    parentFolderId: varchar("id", { length: 255 }).references(() => folders.id),
+    parentFolderId: varchar("parentFolderId", { length: 255 }).references(
+      () => folders.id,
+    ),
     name: varchar("name", { length: 256 }).notNull(),
     textJson: json("textJson"),
   },

@@ -1,17 +1,17 @@
 "use client";
 
-import React, { useDeferredValue, useState } from "react";
-import type { Folder, Note } from "~/server/db/schema";
-import ContentButton from "../../components/ContentButton";
 import {
   ChevronLeftIcon,
   DocumentIcon,
   DocumentPlusIcon,
   FolderOpenIcon,
-  FolderPlusIcon,
   HomeIcon,
   PencilSquareIcon,
 } from "@heroicons/react/24/outline";
+import React, { useDeferredValue, useState } from "react";
+import AddFolderButton from "~/components/AddFolderButton";
+import ContentButton from "~/components/ContentButton";
+import type { Folder, Note } from "~/server/db/schema";
 
 type PageContentProps = {
   foldersData: Folder[];
@@ -118,9 +118,7 @@ const PageContent: React.FC<PageContentProps> = ({
             <p className="text-xl">{folder.name}</p>
           </div>
           <div className="flex gap-2">
-            <button className="rounded bg-slate-700 p-2">
-              <FolderPlusIcon className="h-6 w-6" />
-            </button>
+            <AddFolderButton parentFolderId={folder.id} />
             <button className="rounded bg-slate-700 p-2">
               <DocumentPlusIcon className="h-6 w-6" />
             </button>

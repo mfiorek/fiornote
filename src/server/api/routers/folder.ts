@@ -8,12 +8,14 @@ export const folderRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
+        id: z.string(),
         parentFolderId: z.string().nullable(),
         name: z.string().min(1),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       await ctx.db.insert(folders).values({
+        id: input.id,
         userId: ctx.session.user.id,
         parentFolderId: input.parentFolderId,
         name: input.name,
