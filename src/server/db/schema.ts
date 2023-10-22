@@ -1,8 +1,9 @@
-import { relations, sql } from "drizzle-orm";
+import { InferSelectModel, relations, sql } from "drizzle-orm";
 import {
-  bigint,
+  foreignKey,
   index,
   int,
+  json,
   mysqlTableCreator,
   primaryKey,
   text,
@@ -19,22 +20,75 @@ import { type AdapterAccount } from "next-auth/adapters";
  */
 export const mysqlTable = mysqlTableCreator((name) => `fiornote_${name}`);
 
-export const posts = mysqlTable(
-  "post",
+export const folders = mysqlTable(
+  "folder",
   {
-    id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
-    name: varchar("name", { length: 256 }),
-    createdById: varchar("createdById", { length: 255 }).notNull(),
+    // id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$default(() => crypto.randomUUID()),
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     updatedAt: timestamp("updatedAt").onUpdateNow(),
+    userId: varchar("userId", { length: 255 })
+      .notNull()
+      .references(() => users.id),
+    // parentFolderId: bigint("id", { mode: "number" }),
+    parentFolderId: varchar("id", { length: 255 }),
+    name: varchar("name", { length: 256 }).notNull(),
   },
-  (example) => ({
-    createdByIdIdx: index("createdById_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
-  })
+  (folder) => ({
+    idIndex: index("folder_id_idx").on(folder.id),
+    nameIndex: index("folder_name_idx").on(folder.name),
+    parentReference: foreignKey({
+      columns: [folder.parentFolderId],
+      foreignColumns: [folder.id],
+    }),
+  }),
 );
+export const foldersRelations = relations(folders, ({ one, many }) => ({
+  user: one(users, { fields: [folders.userId], references: [users.id] }),
+  parentFolder: one(folders, {
+    fields: [folders.parentFolderId],
+    references: [folders.id],
+  }),
+  notes: many(notes),
+}));
+export type Folder = InferSelectModel<typeof folders>;
+
+export const notes = mysqlTable(
+  "note",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$default(() => crypto.randomUUID()),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updatedAt").onUpdateNow(),
+    userId: varchar("userId", { length: 255 })
+      .notNull()
+      .references(() => users.id),
+    parentFolderId: varchar("id", { length: 255 }).references(() => folders.id),
+    name: varchar("name", { length: 256 }).notNull(),
+    textJson: json("textJson"),
+  },
+  (note) => ({
+    idIndex: index("note_id_idx").on(note.id),
+    nameIndex: index("note_name_idx").on(note.name),
+  }),
+);
+export const notesRelations = relations(notes, ({ one }) => ({
+  user: one(users, { fields: [notes.userId], references: [users.id] }),
+  parentFolder: one(folders, {
+    fields: [notes.parentFolderId],
+    references: [folders.id],
+  }),
+}));
+export type Note = InferSelectModel<typeof notes>;
 
 export const users = mysqlTable("user", {
   id: varchar("id", { length: 255 }).notNull().primaryKey(),
@@ -46,9 +100,10 @@ export const users = mysqlTable("user", {
   }).default(sql`CURRENT_TIMESTAMP(3)`),
   image: varchar("image", { length: 255 }),
 });
-
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
+  folders: many(folders),
+  notes: many(notes),
 }));
 
 export const accounts = mysqlTable(
@@ -71,9 +126,8 @@ export const accounts = mysqlTable(
   (account) => ({
     compoundKey: primaryKey(account.provider, account.providerAccountId),
     userIdIdx: index("userId_idx").on(account.userId),
-  })
+  }),
 );
-
 export const accountsRelations = relations(accounts, ({ one }) => ({
   user: one(users, { fields: [accounts.userId], references: [users.id] }),
 }));
@@ -89,9 +143,8 @@ export const sessions = mysqlTable(
   },
   (session) => ({
     userIdIdx: index("userId_idx").on(session.userId),
-  })
+  }),
 );
-
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, { fields: [sessions.userId], references: [users.id] }),
 }));
@@ -105,5 +158,5 @@ export const verificationTokens = mysqlTable(
   },
   (vt) => ({
     compoundKey: primaryKey(vt.identifier, vt.token),
-  })
+  }),
 );

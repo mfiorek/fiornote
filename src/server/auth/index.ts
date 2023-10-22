@@ -4,8 +4,9 @@ import {
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
+import { type SendVerificationRequestParams } from "next-auth/providers";
 import GitHubProvider from "next-auth/providers/github";
-
+import { Resend } from "resend";
 import { env } from "~/env.mjs";
 import { db } from "~/server/db";
 import { mysqlTable } from "~/server/db/schema";
@@ -31,20 +32,55 @@ declare module "next-auth" {
   // }
 }
 
+export const resend = new Resend(env.RESEND_API_KEY);
+
+const sendVerificationRequest = async (
+  params: SendVerificationRequestParams,
+) => {
+  try {
+    await resend.emails.send({
+      from: "fiornote@fiorek.codes",
+      to: params.identifier,
+      subject: "fiornote - Login Magic Link",
+      html: `Please click here to authenticate and log in: ${params.url}`,
+    });
+  } catch (error) {
+    console.error({ error });
+  }
+};
+
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
  *
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
+  pages: {
+    signIn: "/login",
+    // verifyRequest: "/checkyouremail",
+  },
+  session: {
+    strategy: "jwt",
+  },
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    jwt: ({ token, user }) => {
+      if (user) {
+        return {
+          ...token,
+          id: user.id,
+        };
+      }
+      return token;
+    },
+    session: ({ session, token }) => {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.id,
+        },
+      };
+    },
   },
   adapter: DrizzleAdapter(db, mysqlTable),
   providers: [
@@ -52,15 +88,16 @@ export const authOptions: NextAuthOptions = {
       clientId: env.GITHUB_ID,
       clientSecret: env.GITHUB_SECRET,
     }),
-    /**
-     * ...add more providers here.
-     *
-     * Most other providers require a bit more work than the Discord provider. For example, the
-     * GitHub provider requires you to add the `refresh_token_expires_in` field to the Account
-     * model. Refer to the NextAuth.js docs for the provider you want to use. Example:
-     *
-     * @see https://next-auth.js.org/providers/github
-     */
+    {
+      id: "email",
+      type: "email",
+      from: "fiornote@fiorek.codes",
+      server: {},
+      maxAge: 24 * 60 * 60,
+      name: "Email",
+      options: {},
+      sendVerificationRequest,
+    },
   ],
 };
 
