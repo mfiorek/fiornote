@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getServerAuthSession } from "~/server/auth";
-import { serverApi } from "~/trpc";
+import { apiServer } from "~/trpc/server";
 import PageContent from "./PageContent";
 
 export default async function Home() {
@@ -10,11 +10,9 @@ export default async function Home() {
     redirect("/login");
   }
 
-  // const foldersData = await serverApi.folder.getAll.query();
-  // const notesData = await serverApi.note.getAll.query();
   const [foldersData, notesData] = await Promise.all([
-    serverApi.folder.getAll.query(),
-    serverApi.note.getAll.query(),
+    apiServer.folder.getAll.query(),
+    apiServer.note.getAll.query(),
   ]);
 
   return (
