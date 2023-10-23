@@ -1,5 +1,6 @@
+import { headers } from "next/headers";
 import "~/styles/globals.css";
-import Providers from "~/components/providers/Providers";
+import { TRPCReactProvider } from "~/trpc/react";
 
 export const metadata = {
   title: "fiornote",
@@ -13,11 +14,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
       <body
         className={`flex min-h-screen flex-col bg-slate-800 text-slate-200`}
       >
-        <Providers>{children}</Providers>
+        <TRPCReactProvider headers={headers()}>{children}</TRPCReactProvider>
       </body>
     </html>
   );
