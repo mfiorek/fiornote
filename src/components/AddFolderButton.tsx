@@ -51,7 +51,7 @@ const AddFolderButton = ({ parentFolderId }: { parentFolderId: string }) => {
       utils.folder.getAll.setData(undefined, context);
     },
     onSuccess: () => {
-      utils.folder.getAll.invalidate();
+      void utils.folder.getAll.invalidate();
     },
   });
 

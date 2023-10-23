@@ -10,7 +10,7 @@ const GitHubLoginButton = () => {
     <button
       onClick={() => {
         setIsDisabled(true);
-        signIn("github");
+        void signIn("github");
       }}
       disabled={isDisabled}
       className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-700 fill-slate-200 px-4 py-2 text-xl font-semibold text-slate-200 shadow-xl transition-colors duration-300 hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-20 dark:bg-slate-300 dark:fill-slate-800 dark:text-slate-800 dark:hover:bg-slate-100"

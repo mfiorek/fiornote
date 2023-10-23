@@ -76,10 +76,7 @@ const PageContent: React.FC<PageContentProps> = ({
     }
 
     const existingParentElementIndex = newContentList.findIndex(
-      (el) =>
-        el !== null &&
-        el.id !== null &&
-        el.parentFolderId === content.parentFolderId,
+      (el) => el?.id != null && el.parentFolderId === content.parentFolderId,
     );
     if (existingParentElementIndex > -1) {
       newContentList[existingParentElementIndex] = content;
