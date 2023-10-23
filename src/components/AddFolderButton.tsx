@@ -2,7 +2,6 @@
 
 import { FolderPlusIcon } from "@heroicons/react/24/outline";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { Button } from "~/components/ui/button";
@@ -18,7 +17,6 @@ import { Input } from "~/components/ui/input";
 import { apiClient } from "~/trpc/react";
 
 const AddFolderButton = ({ parentFolderId }: { parentFolderId: string }) => {
-  const router = useRouter();
   const utils = apiClient.useUtils();
   const [open, setOpen] = useState(false);
 
@@ -46,6 +44,7 @@ const AddFolderButton = ({ parentFolderId }: { parentFolderId: string }) => {
           },
         ]);
       }
+      setOpen(false);
       return previousFolders;
     },
     onError: (error, variables, context) => {
@@ -53,8 +52,6 @@ const AddFolderButton = ({ parentFolderId }: { parentFolderId: string }) => {
     },
     onSuccess: () => {
       utils.folder.getAll.invalidate();
-      router.refresh();
-      setOpen(false);
     },
   });
 

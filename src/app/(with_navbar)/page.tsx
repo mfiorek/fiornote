@@ -17,8 +17,8 @@ export default async function Home() {
 
   return (
     <PageContent
-      foldersData={foldersData}
-      notesData={notesData}
+      initialFoldersData={foldersData}
+      initialNotesData={notesData}
       userId={session.user.id}
     />
   );

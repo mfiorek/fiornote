@@ -12,18 +12,30 @@ import React, { useDeferredValue, useState } from "react";
 import AddFolderButton from "~/components/AddFolderButton";
 import ContentButton from "~/components/ContentButton";
 import type { Folder, Note } from "~/server/db/schema";
+import { apiClient } from "~/trpc/react";
 
 type PageContentProps = {
-  foldersData: Folder[];
-  notesData: Note[];
+  initialFoldersData: Folder[];
+  initialNotesData: Note[];
   userId: string;
 };
 
 const PageContent: React.FC<PageContentProps> = ({
-  foldersData,
-  notesData,
+  initialFoldersData,
+  initialNotesData,
   userId,
 }) => {
+  const { data: foldersData } = apiClient.folder.getAll.useQuery(undefined, {
+    initialData: initialFoldersData,
+    cacheTime: Infinity,
+    staleTime: Infinity,
+  });
+  const { data: notesData } = apiClient.note.getAll.useQuery(undefined, {
+    initialData: initialNotesData,
+    cacheTime: Infinity,
+    staleTime: Infinity,
+  });
+
   const [contentList, setContentList] = useState<(Folder | Note | null)[]>([
     {
       id: null as unknown as string,
@@ -91,6 +103,10 @@ const PageContent: React.FC<PageContentProps> = ({
   function removeFromContentList(content: Folder | Note) {
     const clickedIndex = contentList.findIndex((el) => el === content);
     setLastIndexShown(clickedIndex - 1);
+  }
+
+  if (!foldersData || !notesData) {
+    return null;
   }
 
   const FolderColumn = ({ folder }: { folder: Folder }) => {
