@@ -114,21 +114,23 @@ const PageContent: React.FC<PageContentProps> = ({
           id="rightFolderNav"
           className="flex w-full items-center justify-between"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 overflow-hidden">
             {folder.id === null ? (
-              <HomeIcon className="h-6 w-6" />
+              <HomeIcon className="h-6 w-6 shrink-0" />
             ) : (
               <>
                 <button
                   className="rounded bg-slate-700 p-2"
                   onClick={() => removeFromContentList(folder)}
                 >
-                  <ChevronLeftIcon className="h-6 w-6" />
+                  <ChevronLeftIcon className="h-6 w-6 shrink-0" />
                 </button>
-                <FolderOpenIcon className="h-6 w-6" />
+                <FolderOpenIcon className="h-6 w-6 shrink-0" />
               </>
             )}
-            <p className="text-xl">{folder.name}</p>
+            <p className="overflow-hidden text-ellipsis whitespace-nowrap text-xl">
+              {folder.name}
+            </p>
           </div>
           <div className="flex gap-2">
             <AddFolderButton parentFolderId={folder.id} />

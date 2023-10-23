@@ -44,14 +44,14 @@ const ContentButton: React.FC<ContentButtonProps> = ({
     switch (variant) {
       case "folder":
         return isSelected ? (
-          <FolderOpenIcon className="h-6 w-6" />
+          <FolderOpenIcon className="h-6 w-6 shrink-0" />
         ) : (
-          <FolderIcon className="h-6 w-6 text-sky-600" />
+          <FolderIcon className="h-6 w-6 shrink-0 text-sky-600" />
         );
       case "note":
         return (
           <DocumentIcon
-            className={`h-6 w-6 ${!isSelected && "text-emerald-600"}`}
+            className={`h-6 w-6 shrink-0 ${!isSelected && "text-emerald-600"}`}
           />
         );
       default:
@@ -65,9 +65,15 @@ const ContentButton: React.FC<ContentButtonProps> = ({
       onClick={onClick}
     >
       <div className="flex w-full items-center justify-between">
-        <div className="flex flex-1 gap-2">
+        <div className="flex flex-1 gap-2 overflow-hidden">
           {getIcon()}
-          <p className={`${isSelected && "font-bold"}`}>{text}</p>
+          <p
+            className={`overflow-hidden text-ellipsis whitespace-nowrap ${
+              isSelected && "font-bold"
+            }`}
+          >
+            {text}
+          </p>
         </div>
       </div>
     </button>
