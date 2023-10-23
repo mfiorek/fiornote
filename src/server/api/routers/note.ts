@@ -8,17 +8,17 @@ export const noteRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
+        id: z.string(),
         parentFolderId: z.string().nullable(),
-        name: z.string(),
-        textJson: z.string().nullable(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       await ctx.db.insert(notes).values({
+        id: input.id,
         userId: ctx.session.user.id,
         parentFolderId: input.parentFolderId,
-        name: input.name,
-        textJson: input.textJson,
+        name: `New note ${new Date().toLocaleDateString()}`,
+        textJson: JSON.stringify({}),
       });
     }),
 

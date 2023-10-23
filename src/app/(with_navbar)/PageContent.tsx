@@ -3,13 +3,13 @@
 import {
   ChevronLeftIcon,
   DocumentIcon,
-  DocumentPlusIcon,
   FolderOpenIcon,
   HomeIcon,
   PencilSquareIcon,
 } from "@heroicons/react/24/outline";
 import React, { useDeferredValue, useState } from "react";
 import AddFolderButton from "~/components/AddFolderButton";
+import AddNoteButton from "~/components/AddNoteButton";
 import ContentButton from "~/components/ContentButton";
 import type { Folder, Note } from "~/server/db/schema";
 import { apiClient } from "~/trpc/react";
@@ -46,7 +46,7 @@ const PageContent: React.FC<PageContentProps> = ({
       userId: userId,
     },
   ]);
-  const [numberOfColumns, setNumberOfColumns] = useState(3);
+  const [numberOfColumns] = useState(3);
   const [lastIndexShown, setLastIndexShown] = useState(0);
   const deferredLastIndexShown = useDeferredValue(lastIndexShown);
   const indicesShown = [...Array(numberOfColumns).keys()].map(
@@ -132,9 +132,7 @@ const PageContent: React.FC<PageContentProps> = ({
           </div>
           <div className="flex gap-2">
             <AddFolderButton parentFolderId={folder.id} />
-            <button className="rounded bg-slate-700 p-2">
-              <DocumentPlusIcon className="h-6 w-6" />
-            </button>
+            <AddNoteButton parentFolderId={folder.id} />
           </div>
         </div>
         {/* DIVIDER */}
